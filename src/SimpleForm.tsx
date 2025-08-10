@@ -14,29 +14,30 @@ export default function SimpleForm({ commonFeatures }: SimpleFormProps) {
     phone: ''
   });
 
+  const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
-                        const response = await fetch('/api/submit-idea', {
+      const response = await fetch('/api/submit-idea', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
-      
+
       const result = await response.json();
-      
+
+      // Scroll to top so message is visible
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
       if (result.success) {
-        alert(result.message);
+        setStatusMessage({ type: 'success', text: result.message });
         setFormData({
           appName: '',
           description: '',
@@ -46,12 +47,16 @@ export default function SimpleForm({ commonFeatures }: SimpleFormProps) {
           phone: ''
         });
       } else {
-        alert('Error: ' + result.message);
+        setStatusMessage({ type: 'error', text: result.message });
       }
     } catch (error) {
       console.error('Error submitting form:', error);
-      alert('Failed to submit. Please check your connection and try again.');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setStatusMessage({ type: 'error', text: 'Failed to submit. Please try again.' });
     }
+
+    // Auto-hide message after 4 seconds
+    setTimeout(() => setStatusMessage(null), 4000);
   };
 
   return (
@@ -64,6 +69,16 @@ export default function SimpleForm({ commonFeatures }: SimpleFormProps) {
               The more details you provide, the better we can craft your perfect solution.
             </p>
           </div>
+
+          {statusMessage && (
+            <div
+              className={`mb-6 px-4 py-3 rounded-lg text-white text-center ${
+                statusMessage.type === 'success' ? 'bg-green-600' : 'bg-red-600'
+              }`}
+            >
+              {statusMessage.text}
+            </div>
+          )}
 
           <div className="bg-gray-800 rounded-xl shadow-lg p-8 border border-gray-700">
             <form onSubmit={handleSubmit} className="space-y-8">
@@ -96,7 +111,7 @@ export default function SimpleForm({ commonFeatures }: SimpleFormProps) {
                   onChange={handleInputChange}
                   rows={6}
                   className="w-full px-4 py-3 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg bg-gray-700 text-white placeholder-gray-400"
-                  placeholder="Tell us what you want your app to do, who will use it, and what problem it solves..."
+                  placeholder="Tell us what you want your app to do..."
                   maxLength={1000}
                   required
                 />
@@ -115,7 +130,7 @@ export default function SimpleForm({ commonFeatures }: SimpleFormProps) {
                   onChange={handleInputChange}
                   rows={4}
                   className="w-full px-4 py-3 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg bg-gray-700 text-white placeholder-gray-400"
-                  placeholder="Describe the features you want in your app (e.g., user login, push notifications, offline mode, social sharing, etc.)"
+                  placeholder="Describe the features you want..."
                   maxLength={500}
                   required
                 />
