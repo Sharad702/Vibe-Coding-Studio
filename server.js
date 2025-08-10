@@ -196,6 +196,9 @@ app.put('/api/submissions/:id/status', async (req, res) => {
   }
 });
 
+// Serve static files from the dist directory
+app.use(express.static(path.join(__dirname, 'dist')));
+
 // Serve React app for all other routes
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));

@@ -25,7 +25,7 @@ export default function SimpleForm({ commonFeatures }: SimpleFormProps) {
     e.preventDefault();
     
     try {
-                        const response = await fetch('http://localhost:3001/api/submit-idea', {
+                        const response = await fetch('/api/submit-idea', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
